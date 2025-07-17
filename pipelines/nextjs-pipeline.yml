@@ -1,12 +1,22 @@
-trigger: none  # We will manually or remotely trigger this
+trigger: none  # Disable default trigger for Devops-Repo itself
+
+pr: none       # Disable PR triggers for Devops-Repo itself
 
 resources:
   repositories:
     - repository: devRepo
       type: github
       name: RadhaKrishna98/next-js-hello-world
-      ref: main
+      ref: refs/heads/main
       endpoint: GitHub-Service-Connection of hello world dev repo
+      trigger:
+        tags:
+          include:
+            - '*'   # Trigger for any tag
+        pullRequests:
+          branches:
+            include:
+              - '*'   # Trigger for any PR to any branch
 
 pool:
   vmImage: ubuntu-latest
