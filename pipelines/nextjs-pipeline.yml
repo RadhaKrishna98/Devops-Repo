@@ -1,13 +1,12 @@
-trigger:
-  none  # We’ll trigger manually or from dev repo
+trigger: none  # We will manually or remotely trigger this
 
 resources:
   repositories:
     - repository: devRepo
       type: github
       name: RadhaKrishna98/next-js-hello-world
-      ref: refs/heads/main  # or use `refs/tags/*` to trigger on tag
-      endpoint: GitHub-Service-Connection
+      ref: main
+      endpoint: <your-GitHub-service-connection-name>
 
 pool:
   vmImage: ubuntu-latest
@@ -23,8 +22,5 @@ steps:
   - script: |
       npm install
       npm run build
-    displayName: 'Build Next.js App'
-
-  - script: |
-      npm start
-    displayName: 'Run App'
+    workingDirectory: $(Build.SourcesDirectory)
+    displayName: 'Install and Build Next.js App'
