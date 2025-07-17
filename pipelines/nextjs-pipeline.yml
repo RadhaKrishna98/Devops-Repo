@@ -1,5 +1,5 @@
-trigger: none       # Don't trigger on changes to this (DevOps) repo
-pr: none            # Don't trigger PRs to this (DevOps) repo
+trigger: none       # Disable CI trigger for DevOps repo
+pr: none            # Disable PR trigger for DevOps repo
 
 resources:
   repositories:
@@ -7,21 +7,26 @@ resources:
       type: github
       name: RadhaKrishna98/next-js-hello-world
       ref: refs/heads/main
-      endpoint: GitHub-Service-Connection of hello world dev repo   # ✅ replace with your actual GitHub service connection name
+      endpoint: GitHub-Service-Connection of hello world dev repo  # 🛠 Replace with actual name
       trigger:
         tags:
           include:
-            - '*'   # ✅ trigger on any tag created in dev repo
-        pullRequests:
-          branches:
-            include:
-              - '*' # ✅ trigger on PR to any branch in dev repo
+            - '*'   # ✅ Trigger pipeline on any tag
+
+# 🔄 This enables PR trigger from the devRepo
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - '*'  # optional
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-  - checkout: devRepo  # checkout the devRepo, not self
+  - checkout: devRepo
 
   - task: NodeTool@0
     inputs:
