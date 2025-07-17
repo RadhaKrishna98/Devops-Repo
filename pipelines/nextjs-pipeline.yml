@@ -1,4 +1,5 @@
 trigger: none       # Disable CI trigger for DevOps repo
+
 pr: none            # Disable PR trigger for DevOps repo
 
 resources:
@@ -12,15 +13,13 @@ resources:
         tags:
           include:
             - '*'   # ✅ Trigger pipeline on any tag
-
-# 🔄 This enables PR trigger from the devRepo
-pr:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - '*'  # optional
+      pr:
+        branches:
+          include:
+            - main
+        paths:
+          include:
+            - '*'  # Optional: remove if not needed
 
 pool:
   vmImage: ubuntu-latest
