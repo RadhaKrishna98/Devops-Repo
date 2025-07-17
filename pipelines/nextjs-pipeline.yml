@@ -10,7 +10,7 @@ resources:
       trigger:
         tags:
           include:
-            - '*'    # Trigger on any tag
+            - '*'   # Trigger on any tag
 
 pool:
   vmImage: ubuntu-latest
@@ -18,5 +18,12 @@ pool:
 steps:
   - checkout: devRepo
 
-  - script: echo "Triggered by tag: $(Build.SourceBranchName)"
-    displayName: 'Show Tag Info'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Install and Build Next.js App'
