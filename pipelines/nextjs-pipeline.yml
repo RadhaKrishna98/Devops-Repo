@@ -1,22 +1,157 @@
+# azure-pipelines-webhook.yml
+# This pipeline uses webhook trigger for more reliable tag-based triggering
+
 trigger: none
 pr: none
 
+# Webhook resource for GitHub tag events
 resources:
-  repositories:
-    - repository: devRepo
-      type: github
-      name: RadhaKrishna98/next-js-hello-world
-      endpoint: svc_nodejs_repo
-      trigger:
-        tags:
-          include:
-            - '*'    # Trigger on any tag
+  webhooks:
+    - webhook: github_tag_webhook
+      connection: webhook_nodejs_repo  # Your webhook service connection
+      filters:
+        - path: ref
+          value: refs/tags/*
+
+variables:
+  # Repository details
+  devRepoUrl: 'https://github.com/RadhaKrishna98/next-js-hello-world.git'
+  devRepoName: 'next-js-hello-world'
+  system.debug: true
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-  - checkout: devRepo
+stages:
+  - stage: Build
+    displayName: 'Build and Deploy'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Next.js Application'
+        steps:
+          # Display webhook payload information
+          - script: |
+              echo "=== Webhook Trigger Information ==="
+              echo "Build Reason: $(Build.Reason)"
+              echo "Source Branch: $(Build.SourceBranch)"
+              echo "Source Version: $(Build.SourceVersion)"
+              echo "Webhook Data: $(Build.RequestedFor)"
+              echo "=================================="
+            displayName: 'Display Webhook Info'
 
-  - script: echo "Triggered by tag: $(Build.SourceBranchName)"
-    displayName: 'Show Tag Info'
+          # Clone the dev repository
+          - script: |
+              echo "Cloning repository: $(devRepoUrl)"
+              git clone $(devRepoUrl) $(devRepoName)
+              cd $(devRepoName)
+              
+              # Extract tag name from webhook data
+              TAG_NAME=$(echo "$(Build.SourceBranch)" | sed 's/refs\/tags\///')
+              echo "Checking out tag: $TAG_NAME"
+              git checkout $TAG_NAME
+              
+              # Display current commit info
+              echo "Current commit:"
+              git log -1 --oneline
+              
+              # Copy files to build directory
+              cp -r . $(Build.SourcesDirectory)/
+            displayName: 'Clone and Checkout Dev Repository'
+            workingDirectory: $(Agent.TempDirectory)
+
+          # Install Node.js
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+            displayName: 'Install Node.js 18.x'
+
+          # Cache node_modules
+          - task: Cache@2
+            inputs:
+              key: 'npm | "$(Agent.OS)" | $(Build.SourcesDirectory)/package-lock.json'
+              restoreKeys: |
+                npm | "$(Agent.OS)"
+              path: $(npm_config_cache)
+            displayName: 'Cache npm packages'
+
+          # Install dependencies
+          - script: |
+              echo "Installing dependencies..."
+              npm ci --prefer-offline --no-audit
+            displayName: 'Install Dependencies'
+            workingDirectory: $(Build.SourcesDirectory)
+
+          # Build the application
+          - script: |
+              echo "Building Next.js application..."
+              npm run build
+            displayName: 'Build Next.js App'
+            workingDirectory: $(Build.SourcesDirectory)
+
+          # Run tests
+          - script: |
+              if npm run | grep -q "test"; then
+                echo "Running tests..."
+                npm test
+              else
+                echo "No test script found, skipping tests"
+              fi
+            displayName: 'Run Tests'
+            workingDirectory: $(Build.SourcesDirectory)
+            continueOnError: true
+
+          # Create build artifacts
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(Build.SourcesDirectory)/.next'
+              artifactName: 'nextjs-build'
+              publishLocation: 'Container'
+            displayName: 'Publish Build Artifacts'
+
+          # Create deployment package with tag name
+          - task: ArchiveFiles@2
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(devRepoName)-$(Build.SourceBranchName).zip'
+              replaceExistingArchive: true
+            displayName: 'Create Deployment Package'
+
+          # Publish deployment package
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'deployment-package'
+              publishLocation: 'Container'
+            displayName: 'Publish Deployment Package'
+
+  # Deployment stage
+  - stage: Deploy
+    displayName: 'Deploy Application'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployJob
+        displayName: 'Deploy to Environment'
+        environment: 'development'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: deployment-package
+                  displayName: 'Download Deployment Package'
+                
+                - script: |
+                    TAG_NAME=$(echo "$(Build.SourceBranch)" | sed 's/refs\/tags\///')
+                    echo "Deploying application for tag: $TAG_NAME"
+                    echo "Package location: $(Pipeline.Workspace)/deployment-package"
+                    
+                    # Example deployment commands
+                    # az webapp deployment source config-zip --resource-group myResourceGroup --name myApp --src package.zip
+                    # kubectl apply -f deployment.yaml
+                    # docker build -t myapp:$TAG_NAME .
+                    # docker push myapp:$TAG_NAME
+                    
+                  displayName: 'Deploy Application'
