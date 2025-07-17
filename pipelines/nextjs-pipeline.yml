@@ -6,7 +6,6 @@ resources:
     - repository: devRepo
       type: github
       name: RadhaKrishna98/next-js-hello-world  # ✅ EXACT GitHub repo name
-      ref: refs/heads/main
       endpoint: svc_nodejs_repo      # ✅ Your Azure DevOps GitHub connection name
       trigger:
         tags:
