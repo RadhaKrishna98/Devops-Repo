@@ -1,0 +1,30 @@
+trigger:
+  none  # We’ll trigger manually or from dev repo
+
+resources:
+  repositories:
+    - repository: devRepo
+      type: github
+      name: RadhaKrishna98/next-js-hello-world
+      ref: refs/heads/main  # or use `refs/tags/*` to trigger on tag
+      endpoint: GitHub-Service-Connection
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: devRepo
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '18.x'
+    displayName: 'Install Node.js'
+
+  - script: |
+      npm install
+      npm run build
+    displayName: 'Build Next.js App'
+
+  - script: |
+      npm start
+    displayName: 'Run App'
