@@ -7,7 +7,6 @@ resources:
     - repository: devRepo
       type: github
       name: RadhaKrishna98/next-js-hello-world
-      ref: refs/tags/*
       endpoint: GitHub-Service-Connection of hello world dev repo  # 🛠 Replace with actual name
       trigger:
         tags:
