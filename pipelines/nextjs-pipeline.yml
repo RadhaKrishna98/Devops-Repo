@@ -7,7 +7,7 @@ resources:
       type: github
       name: RadhaKrishna98/next-js-hello-world
       ref: refs/heads/main
-      endpoint: RadhaKrishna98   # ✅ replace with your actual GitHub service connection name
+      endpoint: GitHub-Service-Connection of hello world dev repo   # ✅ replace with your actual GitHub service connection name
       trigger:
         tags:
           include:
