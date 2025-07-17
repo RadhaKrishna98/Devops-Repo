@@ -1,30 +1,23 @@
-trigger: none       # Disable CI trigger for DevOps repo
-
-pr: none            # Disable PR trigger for DevOps repo
+trigger: none     # No CI trigger for this repo
+pr: none          # No PR trigger for this repo
 
 resources:
   repositories:
     - repository: devRepo
       type: github
-      name: RadhaKrishna98/next-js-hello-world
-      endpoint: GitHub-Service-Connection of hello world dev repo  # 🛠 Replace with actual name
+      name: RadhaKrishna98/next-js-hello-world  # ✅ EXACT GitHub repo name
+      ref: refs/heads/main
+      endpoint: webhook_nodejs_repo      # ✅ Your Azure DevOps GitHub connection name
       trigger:
         tags:
           include:
-            - '*'   # ✅ Trigger pipeline on any tag
-      pr:
-        branches:
-          include:
-            - main
-        paths:
-          include:
-            - '*'  # Optional: remove if not needed
+            - '*'       # ✅ Trigger on any tag created in dev repo
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-  - checkout: devRepo
+  - checkout: devRepo     # ✅ Checkout code from GitHub repo
 
   - task: NodeTool@0
     inputs:
@@ -34,5 +27,4 @@ steps:
   - script: |
       npm install
       npm run build
-    workingDirectory: $(Build.SourcesDirectory)
     displayName: 'Install and Build Next.js App'
