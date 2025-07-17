@@ -6,7 +6,7 @@ resources:
       type: github
       name: RadhaKrishna98/next-js-hello-world
       ref: main
-      endpoint: <your-GitHub-service-connection-name>
+      endpoint: GitHub-Service-Connection of hello world dev repo
 
 pool:
   vmImage: ubuntu-latest
