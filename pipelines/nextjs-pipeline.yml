@@ -1,29 +1,22 @@
-trigger: none     # No CI trigger for this repo
-pr: none          # No PR trigger for this repo
+trigger: none
+pr: none
 
 resources:
   repositories:
     - repository: devRepo
       type: github
-      name: RadhaKrishna98/next-js-hello-world  # ✅ EXACT GitHub repo name
-      endpoint: svc_nodejs_repo      # ✅ Your Azure DevOps GitHub connection name
+      name: RadhaKrishna98/next-js-hello-world
+      endpoint: svc_nodejs_repo
       trigger:
         tags:
           include:
-            - '*'       # ✅ Trigger on any tag created in dev repo
+            - '*'    # Trigger on any tag
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-  - checkout: devRepo     # ✅ Checkout code from GitHub repo
+  - checkout: devRepo
 
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '18.x'
-    displayName: 'Install Node.js'
-
-  - script: |
-      npm install
-      npm run build
-    displayName: 'Install and Build Next.js App'
+  - script: echo "Triggered by tag: $(Build.SourceBranchName)"
+    displayName: 'Show Tag Info'
