@@ -8,9 +8,12 @@ resources:
       name: RadhaKrishna98/next-js-hello-world
       endpoint: svc_nodejs_repo
       trigger:
+        branches:
+          include:
+            - '*'         # Trigger on any push or PR to any branch
         tags:
           include:
-            - '*'   # Trigger on any tag
+            - '*'         # Trigger on any tag
 
 pool:
   vmImage: ubuntu-latest
@@ -22,6 +25,10 @@ steps:
     inputs:
       versionSpec: '18.x'
     displayName: 'Install Node.js'
+  
+  - script: |
+      echo "Triggered from branch or tag: $(Build.SourceBranch)"
+    displayName: 'Show Trigger Info'
 
   - script: |
       npm install
