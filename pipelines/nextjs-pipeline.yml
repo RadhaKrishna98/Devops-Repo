@@ -8,13 +8,12 @@ resources:
       name: RadhaKrishna98/next-js-hello-world
       endpoint: svc_nodejs_repo
       trigger:
+        branches:
+          include:
+            - '*'
         tags:
           include:
             - '*'
-        pullRequest:
-          branches:
-            include:
-              - '*'
 
 pool:
   vmImage: ubuntu-latest
