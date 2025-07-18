@@ -10,20 +10,15 @@ resources:
       trigger:
         branches:
           include:
-            - '*'    # For pushes
+            - '*'
         tags:
           include:
-            - '*'    # For tags
-        pr:
-          branches:
-            include:
-              - '*'  # For pull requests
+            - '*'
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
   - checkout: devRepo
-
   - script: echo "Triggered by $(Build.SourceBranch)"
     displayName: "Show Branch Info"
