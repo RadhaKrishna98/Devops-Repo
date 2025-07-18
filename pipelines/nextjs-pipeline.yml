@@ -10,10 +10,14 @@ resources:
       trigger:
         branches:
           include:
-            - '*'
+            - '*'    # For pushes
         tags:
           include:
-            - '*'
+            - '*'    # For tags
+        pr:
+          branches:
+            include:
+              - '*'  # For pull requests
 
 pool:
   vmImage: ubuntu-latest
