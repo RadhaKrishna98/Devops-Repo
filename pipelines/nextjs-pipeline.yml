@@ -5,8 +5,8 @@ resources:
   repositories:
     - repository: devRepo
       type: github
-      name: your-org/development-repo-name
-      endpoint: your-github-service-connection
+      name: RadhaKrishna98/next-js-hello-world
+      endpoint: svc_nodejs_repo
       trigger:
         tags:
           include:
