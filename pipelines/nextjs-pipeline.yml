@@ -6,7 +6,7 @@ resources:
     - repository: devRepo
       type: github
       name: RadhaKrishna98/next-js-hello-world
-      endpoint: webhook_nodejs_repo
+      endpoint: svc_nodejs_repo
       trigger:
         branches:
           include:
